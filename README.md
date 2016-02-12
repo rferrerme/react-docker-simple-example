@@ -3,6 +3,8 @@ _Web development using Docker, React and RefluxJS, with nginx used as web server
 
 The idea is to have a minimum project that shows how web development with React+Flux works. nginx is used to serve the web and everything has been dockerized.
 
+Philosophy: [React development guidelines](http://rferrer.me/articles/react-development-guidelines.html)
+
 ### Building the containers
 
 If you are not in Linux then set your [docker-machine](https://docs.docker.com/machine/get-started/).
@@ -71,4 +73,6 @@ If you are not in Linux then the containers run inside a VM and volumes are shar
 
     * npm has problems creating some symbolic links `--no-bin-links` is used
 
-`packages.json` includes some things that are related to testing, but that is still pending in this example...
+`packages.json` includes some things that are related to testing, but that is still pending in this example.
+
+Finally, if you have a backend you will have to configure nginx as a proxy to be able to reach it. Add a `location` with a `proxy_pass` directive in `/etc/nginx/conf.d/default.conf` as explained in [NGINX reverse proxy](https://www.nginx.com/resources/admin-guide/reverse-proxy/).

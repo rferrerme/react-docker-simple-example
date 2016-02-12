@@ -1,0 +1,35 @@
+{
+  "name": "react-docker-simple-example",
+  "version": "0.0.1",
+  "description": "react-docker-simple-example",
+  "repository": "https://github.com/rferrerme/react-docker-simple-example",
+  "main": "js/app.js",
+  "dependencies": {
+    "react-bootstrap": "0.28.3",
+    "react": "0.14.7",
+    "react-addons-pure-render-mixin": "0.14.7",
+    "reflux": "0.3.0",
+    "babel": "6.5.1",
+    "mocha": "2.4.5",
+    "testdom": "2.0.0",
+    "istanbul": "0.4.2"
+  },
+  "devDependencies": {
+    "browserify": "13.0.0",
+    "envify": "3.4.0",
+    "reactify": "1.1.1",
+    "uglify-js": "2.6.1",
+    "watchify": "3.7.0"
+  },
+  "scripts": {
+    "start": "node_modules/watchify/bin/cmd.js -o ../www/bundle.js -v -d js/app.js --poll=1000",
+    "test": "node_modules/mocha/bin/mocha js/test --compilers js:babel/register --require babelhook"
+  },
+  "author": "R Ferrer",
+  "browserify": {
+    "transform": [
+      "reactify",
+      "envify"
+    ]
+  }
+}

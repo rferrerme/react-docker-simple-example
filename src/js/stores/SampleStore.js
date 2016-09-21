@@ -13,7 +13,7 @@ var SampleStore = Reflux.createStore({
     EVENT_REFRESH: "EVENT_REFRESH",
 
     // State
-    text: "No text...",
+    text: "",
 
     // Actions
 

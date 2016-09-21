@@ -1,6 +1,6 @@
 var React = require("react");
 var ReactPropTypes = React.PropTypes;
-var PureRenderMixin = require('react-addons-pure-render-mixin');
+var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 
 // React-Bootstrap components
 var ReactBootstrap = require('react-bootstrap');
@@ -47,7 +47,7 @@ var TextInput = React.createClass({
                     <Input type='text' value={this.state.text} placeholder="Enter text" onChange={this.onChange} onKeyUp={this.onKeyUp}/>
                 </Col>
                 <Col md={2}>
-                    <Button bsStyle="primary" onClick={this.submitText}>Convert</Button>
+                    <Button bsStyle="primary" onClick={this.submitText}>Set text</Button>
                 </Col>
             </Row>
         );

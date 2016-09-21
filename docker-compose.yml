@@ -1,0 +1,11 @@
+version: '2'
+services:
+  nginx-react:
+    build: .
+    ports:
+    - "80:80"
+    volumes:
+     - ./supervisor:/supervisor
+     - ./nginx:/nginx
+     - ./www:/www
+     - ./src:/src

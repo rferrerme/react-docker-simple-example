@@ -1,64 +1,64 @@
 # react-docker-simple-example
-_Web development using Docker, React and RefluxJS, with nginx used as web server._
+_Web development using Docker Compose, React and RefluxJS, with nginx used as web server._
 
 The idea is to have a minimum project that shows how web development with React+Flux works. nginx is used to serve the web and everything has been dockerized.
 
-Philosophy: [React development guidelines](http://rferrer.me/articles/react-development-guidelines.html)
+**React guidelines**:
 
-### Building the containers
+* Read this: [React development guidelines](http://rferrer.me/articles/react-development-guidelines.html)
 
-If you are not in Linux then set your [docker-machine](https://docs.docker.com/machine/get-started/).
+### Build & Run container
 
-To build the `nginx` container:
+You will need to install [Docker](https://www.docker.com/products/overview) and [Docker Compose](https://docs.docker.com/compose/install/). If you are not in Linux then set your [Docker Machine](https://docs.docker.com/machine/get-started/).
 
-* `docker build -t nginx nginx/`
+To build and run the "nginx-react" container:
 
-To build the `webapp` container:
+* `docker-compose up -d`
 
-* `docker build -t webapp webapp/`
+(it will run in the background, controlled by [Supervisor](http://supervisord.org))
 
-### Running the web server
+To check the logs:
 
-To launch nginx and keep it running in the background:
+* `docker-compose logs -ft`
 
-* ```docker run -d --name nginx -p 80:80 -v `pwd`/log:/var/log/nginx -v `pwd`/www:/usr/share/nginx/html nginx```
+To stop it (and remove it):
 
-To stop it:
+* `docker-compose down`
 
-* ```docker stop nginx && docker rm nginx```
+(the container has no state so it can be destroyed and recreated every time)
 
 ### Web application
 
 To install the dependencies:
 
-* ```docker run -it --rm --name webapp -v `pwd`/src:/root/src -v `pwd`/www:/root/www webapp npm install --no-bin-links```
+* ```docker-compose exec nginx-react npm install --no-bin-links```
 
 That will create or update the `src/node_modules` folder. That has to be done the first time and every time that dependencies change in `package.json`.
 
 To start the process that will check for changes in the Javascript code and will generate `www/bundle.js`:
 
-* ```docker run -it --rm --name webapp -v `pwd`/src:/root/src -v `pwd`/www:/root/www webapp npm start```
+* ```docker-compose exec nginx-react npm start```
 
-You have to left this running while you do your coding in order to keep the web updated with the latest changes. When updated, it will show new messages like this:
+You have to leave it running while you do your coding in order to keep the web updated with the latest changes. Once a new `www/bundle.js` is generated, it will show a new message like this:
 
-* `3090692 bytes written to ../www/bundle.js (0.59 seconds)`
+* `4178582 bytes written to ../www/bundle.js (5.62 seconds)`
 
-Use CTRL+C to stop it.
+(_Tip_: use CTRL+C to stop it)
 
-nginx is serving the `www` folder, which contains `index.html`.
+nginx is serving the `www` folder, which contains the `index.html` file.
 
 To view the application:
 
 * Launch your web browser and connect to port 80, which is where nginx is listening
-* Note: If you are not in Linux then the nginx container is running inside a VM and you need to connect to port 80 of the IP address of that VM (use `docker-machine ls` to check it)
+* _Note_: if you are not in Linux then the nginx container is running inside a VM and you need to connect to port 80 of the IP address of that VM (use `docker-machine ls` to check it)
 
-To generate a production `bundle.js`:
+To generate a production `www/bundle.js`:
 
-* ```node_modules/browserify/bin/cmd.js js/app.js -t [envify --NODE_ENV production] | node_modules/uglify-js/bin/uglifyjs -cm -o ../www/bundle.js```
+* ```docker-compose exec nginx-react bash -c "node_modules/browserify/bin/cmd.js js/app.js -t [envify --NODE_ENV production] | node_modules/uglify-js/bin/uglifyjs -cm -o ../www/bundle.js"```
 
 ### Some details
 
-If you are not in Linux then the containers run inside a VM and volumes are shared folders. That creates some problems:
+If you are not in Linux then the containers run inside a VM and volumes are shared folders. That could create some problems:
 
 * nginx:
 
@@ -68,11 +68,14 @@ If you are not in Linux then the containers run inside a VM and volumes are shar
 * watchify:
 
     * watchify has problems detecting when a file changes so `--poll` is used
+    * If you don't see any new `... written to ../www/bundle.js` messages after changes in your javascript code remember that you will have to use CTRL+C to stop it and run it again in order to refresh `www/bundle.js`
 
 * npm:
 
-    * npm has problems creating some symbolic links `--no-bin-links` is used
+    * npm has problems creating some symbolic links so `--no-bin-links` is used
 
-`packages.json` includes some things that are related to testing, but that is still pending in this example.
+Finally, if you have a backend you will have to configure nginx as a reverse proxy to be able to reach it:
 
-Finally, if you have a backend you will have to configure nginx as a proxy to be able to reach it. Add a `location` with a `proxy_pass` directive in `/etc/nginx/conf.d/default.conf` as explained in [NGINX reverse proxy](https://www.nginx.com/resources/admin-guide/reverse-proxy/).
+* Add a `location` with a `proxy_pass` directive in `nginx/default.conf` (there is already an example there)
+
+* Then reload the configuration file: `docker-compose exec nginx-react nginx -s reload`
